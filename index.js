@@ -1,22 +1,41 @@
 var InuitsMqtt = /** @class */ (function () {
     function InuitsMqtt() {
         this.connector = null;
-        var application = require("application");
-        var context = application.android.context;
+        this.application = require("application");
         this.connector = new eu.inuits.android.mqttlib.InuitsMqttControler();
-        this.connector.init(context);
+        this.connector.init(this.application.android.context);
+        this.callbacks = {};
     }
-    InuitsMqtt.prototype.connect = function (uri) {
-        this.connector.connect(uri);
+    InuitsMqtt.prototype.connect = function (uri, clientId) {
+        this.connector.connect(uri, clientId);
+
+        // TODO: fix this hack - needed for inner function callback below
+        self = this;
+
+        if (this.application.android) {
+            this.application.android.registerBroadcastReceiver("android.intent.action.MQTT_MESSAGE_RECEIVED",
+
+                function onReceiveCallback(context, intent) {
+
+                    var topic = intent.getStringExtra("eu.inuits.android.mqttlib.MESSAGE_TOPIC");
+                    var data = intent.getStringExtra("eu.inuits.android.mqttlib.MESSAGE_DATA");
+
+                    // TODO: Check if self.callbacks are defined before calling!
+                    self.callbacks[topic](data);
+
+                });
+        }
     };
     InuitsMqtt.prototype.disconnect = function () {
+        if (this.application.android) {
+            this.application.android.unregisterBroadcastReceiver("android.intent.action.MQTT_MESSAGE_RECEIVED");
+        }
+
         return this.connector.disconnect();
     };
-    InuitsMqtt.prototype.subscribe = function (topic) {
-        var application = require("application");
-        var intent = this.connector.subscribe(topic);
-        console.log(intent);
-        
+    InuitsMqtt.prototype.subscribe = function (topic, callback) {
+        // TODO: Check if topic is present (already subscribed), otherwise it will override callback
+        this.callbacks[topic] = callback;
         return this.connector.subscribe(topic);
     };
     InuitsMqtt.prototype.unsubscribe = function (topic) {
@@ -31,4 +50,4 @@ var InuitsMqtt = /** @class */ (function () {
 
 module.exports = {
     inuitsMqtt: InuitsMqtt
-}
+};
