@@ -10,15 +10,20 @@ var InuitsMqtt = /** @class */ (function () {
     /**
      * Connects to the uri with clientId.
      * Then it registers callbacks.
+     * TODO: use some wrapper for connection option, for now there is only username and password,
+     *       but for additional things there should be a map or something like this.
+     *
      * @param uri connection uri (eg. "wss://example.com:443/mqtt")
      * @param clientId (in ideal case Unique ID) if null, random UUID will be generated
+     * @param username optional username for connection, set null if not needed
+     * @param password optional username for connection, set null if not needed
      */
-    InuitsMqtt.prototype.connect = function (uri, clientId) {
+    InuitsMqtt.prototype.connect = function (uri, clientId, username, password) {
 
         /*
          * Connect to uri under selected clientId
          */
-        this.connector.connect(uri, clientId);
+        this.connector.connect(uri, clientId, username, password);
 
         // TODO: fix this hack - needed for inner function callback below
         self = this;
