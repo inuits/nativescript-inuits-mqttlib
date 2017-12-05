@@ -66,8 +66,12 @@ var InuitsMqtt = /** @class */ (function () {
      * The callback have to take exactly one argument, the data.
      * @param topic
      * @param callback
+     * @param qos
      */
-    InuitsMqtt.prototype.subscribe = function (topic, callback) {
+    InuitsMqtt.prototype.subscribe = function (topic, callback, qos) {
+        if (qos === undefined) {
+            qos = constants.QOS_DEFAULT_VALUE;
+        }
 
         /*
          * Store the JS callback
@@ -78,7 +82,8 @@ var InuitsMqtt = /** @class */ (function () {
         /*
          * Subscribe to the topic
          */
-        return this.connector.subscribe(topic);
+        var java_int = new java.lang.Integer(qos);
+        return this.connector.subscribe(topic, java_int);
     };
 
     /**
