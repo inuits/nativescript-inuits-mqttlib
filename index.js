@@ -117,7 +117,7 @@ var InuitsMqtt = /** @class */ (function () {
 
 
     InuitsMqtt.prototype.registerConnectionSuccessHandler = function (connectionSuccessHandler) {
-        this.registerHandler("connectionErrorHandler", connectionSuccessHandler);
+        this.registerHandler("connectionSuccessHandler", connectionSuccessHandler);
     };
 
     InuitsMqtt.prototype.registerConnectionErrorHandler = function (connectionErrorHandler) {
